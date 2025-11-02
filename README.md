@@ -54,6 +54,18 @@ Laden Sie den kompletten `radio_status_panel` Ordner in das `infusions` Verzeich
 3. Aktivieren Sie die Berechtigung **RSP** (Radio Status Panel)
 4. Speichern Sie die Änderungen
 
+### ⚠️ Wichtig: Admin-Panel erscheint nicht?
+
+Falls das Admin-Panel nach der Installation nicht erscheint, lesen Sie bitte die detaillierte Anleitung:
+**[INSTALLATION.md](radio_status_panel/INSTALLATION.md)** - Fehlerbehebung und manuelle Installation
+
+**Häufige Gründe**:
+- Update von einer älteren Version
+- Admin-Rechte nicht korrekt vergeben
+- Infusion wurde vor dem Fix installiert
+
+**Schnelle Lösung**: Infusion deinstallieren und neu installieren (siehe INSTALLATION.md)
+
 ## Konfiguration
 
 ### Radio-Stream hinzufügen
