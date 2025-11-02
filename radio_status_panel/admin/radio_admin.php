@@ -1,73 +1,40 @@
 <?php
-/*-------------------------------------------------------+
-| PHP-Fusion Content Management System
-| Copyright (C) PHP-Fusion Inc
-| https://www.php-fusion.co.uk/
-+--------------------------------------------------------+
-| Filename: radio_admin.php
-| Author: Radio Status Panel Infusion
-+--------------------------------------------------------*/
-require_once "../../maincore.php";
+// Step 1: Absolute minimal test
+echo "Step 1: PHP funktioniert<br>";
 
-pageAccess('RSP');
+// Step 2: Try to load maincore
+echo "Step 2: Versuche maincore.php zu laden...<br>";
 
-require_once THEMES."templates/admin_header.php";
-
-// Simple debug test
-echo "<h2>Radio Status Panel - Admin</h2>";
-echo "<p>PHP-Fusion Version: ".fusion_get_settings('version')."</p>";
-echo "<p>Test erfolgreich!</p>";
-
-// Try to load infusion_db
-if (file_exists(INFUSIONS."radio_status_panel/infusion_db.php")) {
-    require_once INFUSIONS."radio_status_panel/infusion_db.php";
-    echo "<p>✓ infusion_db.php geladen</p>";
-    echo "<p>DB_RADIO_STATUS: ".DB_RADIO_STATUS."</p>";
-    echo "<p>DB_RADIO_SETTINGS: ".DB_RADIO_SETTINGS."</p>";
+if (file_exists("../../maincore.php")) {
+    echo "Step 2a: maincore.php existiert<br>";
+    require_once "../../maincore.php";
+    echo "Step 2b: maincore.php erfolgreich geladen<br>";
 } else {
-    echo "<p>✗ infusion_db.php nicht gefunden</p>";
+    die("FEHLER: maincore.php nicht gefunden!");
 }
 
-// Try to load locale
-if (file_exists(INFUSIONS."radio_status_panel/locale/German.php")) {
-    require_once INFUSIONS."radio_status_panel/locale/German.php";
-    echo "<p>✓ German.php geladen</p>";
+// Step 3: Check if we're in Fusion
+echo "Step 3: IN_FUSION defined? " . (defined('IN_FUSION') ? 'JA' : 'NEIN') . "<br>";
 
-    if (isset($locale['RSP_title'])) {
-        echo "<p>Locale RSP_title: ".$locale['RSP_title']."</p>";
-    }
+// Step 4: Try pageAccess
+echo "Step 4: Versuche pageAccess('RSP')...<br>";
+try {
+    pageAccess('RSP');
+    echo "Step 4a: pageAccess erfolgreich<br>";
+} catch (Exception $e) {
+    echo "Step 4b: pageAccess FEHLER: " . $e->getMessage() . "<br>";
+}
+
+// Step 5: Load admin header
+echo "Step 5: Versuche admin_header.php zu laden...<br>";
+if (defined('THEMES') && file_exists(THEMES."templates/admin_header.php")) {
+    echo "Step 5a: admin_header.php existiert<br>";
+    require_once THEMES."templates/admin_header.php";
+    echo "Step 5b: admin_header.php erfolgreich geladen<br>";
 } else {
-    echo "<p>✗ German.php nicht gefunden</p>";
+    echo "Step 5c: THEMES nicht definiert oder Datei nicht gefunden<br>";
 }
 
-// Check if tables exist
-$tables_exist = true;
-$result = dbquery("SHOW TABLES LIKE '".DB_RADIO_STATUS."'");
-if (dbrows($result) > 0) {
-    echo "<p>✓ Tabelle ".DB_RADIO_STATUS." existiert</p>";
-
-    // Count streams
-    $count_result = dbquery("SELECT COUNT(*) as count FROM ".DB_RADIO_STATUS);
-    $count_data = dbarray($count_result);
-    echo "<p>Anzahl Streams: ".$count_data['count']."</p>";
-} else {
-    echo "<p>✗ Tabelle ".DB_RADIO_STATUS." existiert NICHT</p>";
-    $tables_exist = false;
-}
-
-$result = dbquery("SHOW TABLES LIKE '".DB_RADIO_SETTINGS."'");
-if (dbrows($result) > 0) {
-    echo "<p>✓ Tabelle ".DB_RADIO_SETTINGS." existiert</p>";
-} else {
-    echo "<p>✗ Tabelle ".DB_RADIO_SETTINGS." existiert NICHT</p>";
-    $tables_exist = false;
-}
-
-if (!$tables_exist) {
-    echo "<div style='background:#f44336;color:white;padding:15px;margin:20px 0;'>";
-    echo "<strong>FEHLER: Datenbank-Tabellen fehlen!</strong><br>";
-    echo "Bitte gehen Sie zu System Admin → Infusions und installieren Sie die 'Radio Status Panel' Infusion.";
-    echo "</div>";
-}
+echo "<h2>ERFOLG: Alle Schritte abgeschlossen!</h2>";
 
 require_once THEMES."templates/admin_footer.php";
