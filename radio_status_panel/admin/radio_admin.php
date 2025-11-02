@@ -338,4 +338,5 @@ else {
     closetable();
 }
 
-require_once THEMES."templates/admin_footer.php";
+// Footer wird automatisch von admin_header.php eingebunden
+// require_once THEMES."templates/admin_footer.php";
