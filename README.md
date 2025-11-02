@@ -19,6 +19,9 @@ Ein professionelles Radio-Status-Panel für PHP-Fusion v9, das Stream-Daten von 
 - **Multi-Stream-Support**: Unterstützung für mehrere Radio-Streams
 - **Automatische Aktualisierung**: Konfigurierbare Auto-Refresh-Funktion
 - **Responsive Design**: Optimiert für alle Bildschirmgrößen
+- **Zwei Anzeigemodi**:
+  - **Side Panel**: Kompakt für Seitenleisten
+  - **Center Panel**: Groß und detailliert für Hauptinhalt mit AJAX Live-Updates
 
 ## Systemanforderungen
 
@@ -90,16 +93,55 @@ Im **Einstellungen**-Tab können Sie folgende Optionen konfigurieren:
 
 ## Verwendung
 
-### Frontend-Anzeige
+### Anzeigemodi
+
+Das Radio Status Panel bietet **zwei verschiedene Anzeigemodi**:
+
+#### 1. Side Panel (Seitenleisten-Panel)
+- **Datei**: `radio_status_panel.php`
+- **Position**: Links/Rechts/Oben/Unten
+- **Design**: Kompakt und platzsparend
+- **Installation**: Automatisch bei Infusion-Installation als Panel verfügbar
 
 Nach der Installation und Konfiguration erscheint das Radio-Status-Panel automatisch auf Ihrer Homepage (je nach Panel-Position).
 
-Das Panel zeigt:
+Das Side Panel zeigt:
 - **Stream-Name** mit Status-Badge (Online/Offline)
 - **Aktueller Song** mit Musik-Icon
 - **Hörerzahl** mit Benutzer-Icon
 - **Bitrate** (falls konfiguriert)
 - **Genre** (falls verfügbar)
+
+#### 2. Center Panel (Mittelpanel) ⭐ NEU!
+- **Datei**: `radio_status_center.php`
+- **Position**: Hauptinhalt (Mitte der Seite)
+- **Design**: Groß, detailliert mit modernem Dashboard-Look
+- **Features**:
+  - 🎨 Schöne Gradient-Designs und Animationen
+  - 📊 Große, übersichtliche Statistik-Karten
+  - 🎵 Prominent angezeigter aktueller Song mit Animation
+  - 👥 Visuelle Hörer-Balken
+  - ⚡ AJAX Live-Updates (kein Seiten-Reload)
+  - 📱 Vollständig responsive
+  - 🔄 Automatische Daten-Synchronisation
+
+**Installation des Center Panels**: Siehe [CENTER_PANEL_INSTALLATION.md](radio_status_panel/CENTER_PANEL_INSTALLATION.md) für detaillierte Anweisungen.
+
+**Schnellstart Center Panel**:
+1. Erstellen Sie eine Custom Page unter **Content Admin** → **Custom Pages**
+2. Fügen Sie als PHP Include ein: `/infusions/radio_status_panel/radio_status_center.php`
+3. Speichern und die Seite aufrufen
+
+### Welches Panel soll ich verwenden?
+
+| Kriterium | Side Panel | Center Panel |
+|-----------|-----------|--------------|
+| Platzbedarf | Gering | Groß |
+| Details | Basis-Infos | Alle Details |
+| Visuelle Effekte | Einfach | Erweitert |
+| Live-Updates | Page Reload | AJAX |
+| Beste Position | Sidebar | Hauptinhalt / eigene Seite |
+| Für Startseite | Nein | Ja, perfekt |
 
 ### Shoutcast v1 Server konfigurieren
 
@@ -124,16 +166,20 @@ Für optimale Ergebnisse sollte Ihr Shoutcast v1 Server korrekt konfiguriert sei
 
 ```
 radio_status_panel/
-├── infusion.php                    # Infusion-Definition
-├── infusion_db.php                 # Datenbank-Konstanten
-├── radio_status_panel.php          # Panel-Display-Datei
+├── infusion.php                        # Infusion-Definition
+├── infusion_db.php                     # Datenbank-Konstanten
+├── radio_status_panel.php              # Side Panel Display
+├── radio_status_center.php             # Center Panel Display (NEU)
+├── ajax_refresh.php                    # AJAX-Endpoint für Live-Updates (NEU)
+├── CENTER_PANEL_INSTALLATION.md        # Center Panel Anleitung (NEU)
+├── radio.svg                           # Panel-Icon
 ├── admin/
-│   └── radio_admin.php             # Admin-Interface
+│   └── radio_admin.php                 # Admin-Interface
 ├── classes/
-│   └── ShoutcastReader.php         # Shoutcast API-Klasse
+│   └── ShoutcastReader.php             # Shoutcast API-Klasse
 ├── locale/
-│   └── German.php                  # Deutsche Sprachdatei
-└── templates/                       # (Reserviert für Templates)
+│   └── German.php                      # Deutsche Sprachdatei
+└── templates/                           # (Reserviert für Templates)
 ```
 
 ### Datenbank-Tabellen
@@ -153,11 +199,12 @@ Die `ShoutcastReader`-Klasse kommuniziert mit dem Shoutcast v1 Server über:
 
 - Shoutcast v2 Unterstützung
 - Icecast Server Unterstützung
-- AJAX-basierte Aktualisierung (ohne Seiten-Reload)
+- ✅ ~~AJAX-basierte Aktualisierung (ohne Seiten-Reload)~~ **IMPLEMENTIERT**
 - Historische Statistiken
 - Hörerzahl-Diagramme
 - Player-Integration
 - Mobile App Integration
+- Stream-Verlauf und Analytics
 
 ## Lizenz
 
@@ -179,10 +226,19 @@ Entwickelt für die PHP-Fusion Community
 
 ## Changelog
 
+### Version 1.1.0 (2025-11-02)
+- **NEU**: Center Panel mit großem Dashboard-Design
+- **NEU**: AJAX Live-Updates ohne Seiten-Reload
+- **NEU**: Animationen und visuelle Effekte
+- **NEU**: Hörer-Balken-Visualisierung
+- **NEU**: Responsive Grid-Layout
+- Verbesserte Dokumentation mit separater Center Panel Anleitung
+
 ### Version 1.0.0 (2025-11-02)
 - Erste Veröffentlichung
 - Shoutcast v1 Unterstützung
 - Admin-Panel
 - Multi-Stream-Support
+- Side Panel für Seitenleisten
 - Auto-Refresh-Funktion
 - Deutsche Lokalisierung
