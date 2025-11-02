@@ -7,7 +7,7 @@
 | Filename: radio_admin.php
 | Author: Radio Status Panel Infusion
 +--------------------------------------------------------*/
-require_once "../maincore.php";
+require_once "../../maincore.php";
 
 pageAccess('RSP');
 
@@ -17,7 +17,10 @@ require_once RADIO_STATUS_LOCALE;
 
 // Breadcrumbs
 add_to_title($locale['global_200'].$locale['RSP_title']);
-BreadCrumbs::getInstance()->addBreadCrumb(['link' => INFUSIONS.'radio_status_panel/admin/radio_admin.php'.fusion_get_aidlink(), 'title' => $locale['RSP_title']]);
+\PHPFusion\BreadCrumbs::getInstance()->addBreadCrumb([
+    'link' => INFUSIONS.'radio_status_panel/admin/radio_admin.php'.fusion_get_aidlink(),
+    'title' => $locale['RSP_title']
+]);
 
 // Actions
 $action = isset($_GET['action']) ? $_GET['action'] : '';
@@ -26,7 +29,7 @@ $radio_id = isset($_GET['radio_id']) && isnum($_GET['radio_id']) ? $_GET['radio_
 // Delete stream
 if ($action == 'delete' && $radio_id) {
     if (isset($_POST['confirm'])) {
-        dbquery("DELETE FROM ".DB_RADIO_STATUS." WHERE radio_id=:radio_id", [':radio_id' => $radio_id]);
+        dbquery("DELETE FROM ".DB_RADIO_STATUS." WHERE radio_id='".$radio_id."'");
         addNotice('success', $locale['RSP_stream_deleted']);
         redirect(clean_request('', ['action', 'radio_id'], false));
     } else {
@@ -57,14 +60,14 @@ else if ($action == 'edit' || $action == 'add') {
     ];
 
     if ($action == 'edit' && $radio_id) {
-        $result = dbquery("SELECT * FROM ".DB_RADIO_STATUS." WHERE radio_id=:radio_id", [':radio_id' => $radio_id]);
+        $result = dbquery("SELECT * FROM ".DB_RADIO_STATUS." WHERE radio_id='".$radio_id."'");
         if (dbrows($result)) {
             $data = dbarray($result);
         }
     }
 
     if (isset($_POST['save_stream'])) {
-        $data = [
+        $input = [
             'radio_name' => form_sanitizer($_POST['radio_name'], '', 'radio_name'),
             'radio_server' => form_sanitizer($_POST['radio_server'], '', 'radio_server'),
             'radio_port' => form_sanitizer($_POST['radio_port'], 8000, 'radio_port'),
@@ -75,12 +78,15 @@ else if ($action == 'edit' || $action == 'add') {
             'radio_order' => form_sanitizer($_POST['radio_order'], 0, 'radio_order')
         ];
 
-        if (\defender::safe()) {
+        if (defender::safe()) {
             if ($action == 'edit' && $radio_id) {
-                dbquery_insert(DB_RADIO_STATUS, $data, 'update', ['primary_key' => 'radio_id', 'keep_session' => true, 'no_unique' => true]);
+                // Update existing stream
+                $input['radio_id'] = $radio_id;
+                dbquery_insert(DB_RADIO_STATUS, $input, 'update');
                 addNotice('success', $locale['RSP_stream_updated']);
             } else {
-                dbquery_insert(DB_RADIO_STATUS, $data, 'save', ['keep_session' => true, 'no_unique' => true]);
+                // Add new stream
+                dbquery_insert(DB_RADIO_STATUS, $input, 'save');
                 addNotice('success', $locale['RSP_stream_added']);
             }
             redirect(clean_request('', ['action', 'radio_id'], false));
@@ -158,7 +164,7 @@ else if ($action == 'edit' || $action == 'add') {
 // Settings
 else if ($action == 'settings') {
     if (isset($_POST['save_settings'])) {
-        $settings = [
+        $input = [
             'refresh_interval' => form_sanitizer($_POST['refresh_interval'], 10, 'refresh_interval'),
             'show_listeners' => isset($_POST['show_listeners']) ? 1 : 0,
             'show_current_song' => isset($_POST['show_current_song']) ? 1 : 0,
@@ -167,11 +173,14 @@ else if ($action == 'settings') {
             'show_genre' => isset($_POST['show_genre']) ? 1 : 0
         ];
 
-        if (\defender::safe()) {
-            foreach ($settings as $key => $value) {
-                dbquery("INSERT INTO ".DB_RADIO_SETTINGS." (settings_name, settings_value) VALUES (:name, :value)
-                         ON DUPLICATE KEY UPDATE settings_value=:value2",
-                    [':name' => $key, ':value' => $value, ':value2' => $value]);
+        if (defender::safe()) {
+            foreach ($input as $key => $value) {
+                $result = dbquery("SELECT settings_name FROM ".DB_RADIO_SETTINGS." WHERE settings_name='".$key."'");
+                if (dbrows($result)) {
+                    dbquery("UPDATE ".DB_RADIO_SETTINGS." SET settings_value='".$value."' WHERE settings_name='".$key."'");
+                } else {
+                    dbquery("INSERT INTO ".DB_RADIO_SETTINGS." (settings_name, settings_value) VALUES ('".$key."', '".$value."')");
+                }
             }
             addNotice('success', $locale['RSP_settings_updated']);
             redirect(FUSION_REQUEST);
@@ -233,27 +242,15 @@ else if ($action == 'settings') {
 
 // List streams
 else {
-    // Tab navigation
-    $tab_title['title'][] = $locale['RSP_manage'];
-    $tab_title['id'][] = 'manage';
-    $tab_title['icon'][] = 'fa fa-list';
-
-    $tab_title['title'][] = $locale['RSP_settings'];
-    $tab_title['id'][] = 'settings';
-    $tab_title['icon'][] = 'fa fa-cog';
-
-    $tab_active = tab_active($tab_title, 0);
-
     opentable($locale['RSP_admin_title']);
-
-    echo opentab($tab_title, $tab_active, 'radio_tab');
-
-    echo opentabbody($tab_title['title'][0], 'manage', $tab_active);
 
     // Add button
     echo "<div class='m-b-20'>";
     echo "<a class='btn btn-success' href='".clean_request('action=add', ['action', 'radio_id'], false)."'>";
     echo "<i class='fa fa-plus'></i> ".$locale['RSP_add_stream'];
+    echo "</a> ";
+    echo "<a class='btn btn-default' href='".clean_request('action=settings', ['action', 'radio_id'], false)."'>";
+    echo "<i class='fa fa-cog'></i> ".$locale['RSP_settings'];
     echo "</a>";
     echo "</div>";
 
@@ -275,8 +272,8 @@ else {
         echo "<tbody>";
 
         while ($data = dbarray($result)) {
-            $status_badge = $data['radio_status'] ? "<span class='badge badge-success'>".$locale['RSP_active']."</span>" :
-                                                    "<span class='badge badge-default'>".$locale['RSP_inactive']."</span>";
+            $status_badge = $data['radio_status'] ? "<span class='label label-success'>".$locale['RSP_active']."</span>" :
+                                                    "<span class='label label-default'>".$locale['RSP_inactive']."</span>";
 
             $type_label = $data['radio_type'];
             if ($data['radio_type'] == 'shoutcast1') $type_label = 'Shoutcast v1';
@@ -284,8 +281,8 @@ else {
             if ($data['radio_type'] == 'icecast') $type_label = 'Icecast';
 
             echo "<tr>";
-            echo "<td><strong>".$data['radio_name']."</strong></td>";
-            echo "<td>".$data['radio_server'].":".$data['radio_port']."</td>";
+            echo "<td><strong>".htmlspecialchars($data['radio_name'])."</strong></td>";
+            echo "<td>".htmlspecialchars($data['radio_server']).":".htmlspecialchars($data['radio_port'])."</td>";
             echo "<td>".$type_label."</td>";
             echo "<td>".$status_badge."</td>";
             echo "<td class='text-right'>".$data['radio_order']."</td>";
@@ -308,84 +305,6 @@ else {
         echo "</div>";
     }
 
-    echo closetabbody();
-
-    // Settings tab
-    echo opentabbody($tab_title['title'][1], 'settings', $tab_active);
-
-    if (isset($_POST['save_settings'])) {
-        $settings = [
-            'refresh_interval' => form_sanitizer($_POST['refresh_interval'], 10, 'refresh_interval'),
-            'show_listeners' => isset($_POST['show_listeners']) ? 1 : 0,
-            'show_current_song' => isset($_POST['show_current_song']) ? 1 : 0,
-            'show_max_listeners' => isset($_POST['show_max_listeners']) ? 1 : 0,
-            'show_bitrate' => isset($_POST['show_bitrate']) ? 1 : 0,
-            'show_genre' => isset($_POST['show_genre']) ? 1 : 0
-        ];
-
-        if (\defender::safe()) {
-            foreach ($settings as $key => $value) {
-                dbquery("INSERT INTO ".DB_RADIO_SETTINGS." (settings_name, settings_value) VALUES (:name, :value)
-                         ON DUPLICATE KEY UPDATE settings_value=:value2",
-                    [':name' => $key, ':value' => $value, ':value2' => $value]);
-            }
-            addNotice('success', $locale['RSP_settings_updated']);
-            redirect(FUSION_REQUEST);
-        }
-    }
-
-    // Load current settings
-    $settings = [];
-    $result = dbquery("SELECT * FROM ".DB_RADIO_SETTINGS);
-    while ($data = dbarray($result)) {
-        $settings[$data['settings_name']] = $data['settings_value'];
-    }
-
-    echo openform('settings_form', 'post', FUSION_REQUEST);
-    echo "<div class='row'>";
-    echo "<div class='col-xs-12 col-sm-8'>";
-
-    echo form_text('refresh_interval', $locale['RSP_refresh_interval'],
-        isset($settings['refresh_interval']) ? $settings['refresh_interval'] : 10, [
-        'type' => 'number',
-        'inline' => true,
-        'width' => '150px'
-    ]);
-
-    echo form_checkbox('show_listeners', $locale['RSP_show_listeners'],
-        isset($settings['show_listeners']) ? $settings['show_listeners'] : 1, [
-        'inline' => true
-    ]);
-
-    echo form_checkbox('show_current_song', $locale['RSP_show_current_song'],
-        isset($settings['show_current_song']) ? $settings['show_current_song'] : 1, [
-        'inline' => true
-    ]);
-
-    echo form_checkbox('show_max_listeners', $locale['RSP_show_max_listeners'],
-        isset($settings['show_max_listeners']) ? $settings['show_max_listeners'] : 1, [
-        'inline' => true
-    ]);
-
-    echo form_checkbox('show_bitrate', $locale['RSP_show_bitrate'],
-        isset($settings['show_bitrate']) ? $settings['show_bitrate'] : 1, [
-        'inline' => true
-    ]);
-
-    echo form_checkbox('show_genre', $locale['RSP_show_genre'],
-        isset($settings['show_genre']) ? $settings['show_genre'] : 1, [
-        'inline' => true
-    ]);
-
-    echo "</div>";
-    echo "</div>";
-
-    echo form_button('save_settings', $locale['RSP_save'], $locale['RSP_save'], ['class' => 'btn-primary']);
-    echo closeform();
-
-    echo closetabbody();
-
-    echo closetab();
     closetable();
 }
 
