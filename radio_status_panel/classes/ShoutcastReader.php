@@ -17,6 +17,7 @@ class ShoutcastReader {
 
     private $server;
     private $port;
+    private $mount;
     private $password;
     private $timeout = 5;
     private $error = '';
@@ -26,11 +27,13 @@ class ShoutcastReader {
      *
      * @param string $server Server-Adresse
      * @param int $port Server-Port
+     * @param string $mount Mount-Point (optional)
      * @param string $password Admin-Passwort (optional)
      */
-    public function __construct($server, $port, $password = '') {
+    public function __construct($server, $port, $mount = '/', $password = '') {
         $this->server = $server;
         $this->port = $port;
+        $this->mount = $mount;
         $this->password = $password;
     }
 
@@ -55,14 +58,20 @@ class ShoutcastReader {
      * @return string|false Rohe Stats oder false bei Fehler
      */
     private function fetchStats() {
-        $url = "http://{$this->server}:{$this->port}/7.html";
+        // Verschiedene URLs probieren
+        $urls = [
+            "http://{$this->server}:{$this->port}/7.html",
+            "http://{$this->server}:{$this->port}/stats?sid=1",
+            "http://{$this->server}:{$this->port}/admin.cgi?sid=1&mode=viewxml"
+        ];
 
         // Context für HTTP-Request erstellen
         $opts = [
             'http' => [
                 'method' => 'GET',
                 'timeout' => $this->timeout,
-                'user_agent' => 'PHP-Fusion Radio Status Panel'
+                'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+                'ignore_errors' => true
             ]
         ];
 
@@ -73,15 +82,50 @@ class ShoutcastReader {
 
         $context = stream_context_create($opts);
 
-        // Fehlerbehandlung
-        $data = @file_get_contents($url, false, $context);
+        // Versuche jede URL
+        foreach ($urls as $url) {
+            $data = @file_get_contents($url, false, $context);
 
-        if ($data === false) {
-            $this->error = "Konnte keine Verbindung zum Server herstellen";
+            if ($data !== false && !empty($data)) {
+                // Wenn es XML ist, versuche es zu parsen
+                if (strpos($data, '<?xml') !== false) {
+                    return $this->parseXMLStats($data);
+                }
+                return $data;
+            }
+        }
+
+        // Wenn alle fehlschlagen
+        $this->error = "Stream nicht erreichbar. Bitte überprüfen Sie Server, Port und Mount-Point.";
+        return false;
+    }
+
+    /**
+     * Parst XML Stats (für Shoutcast v2 oder alternative Formate)
+     *
+     * @param string $xml XML-Daten
+     * @return string Konvertierte Stats im 7.html Format
+     */
+    private function parseXMLStats($xml) {
+        $simplexml = @simplexml_load_string($xml);
+
+        if ($simplexml === false) {
             return false;
         }
 
-        return $data;
+        // Versuche Shoutcast v2 XML Format
+        if (isset($simplexml->CURRENTLISTENERS)) {
+            $listeners = (int)$simplexml->CURRENTLISTENERS;
+            $peak = (int)$simplexml->PEAKLISTENERS;
+            $max = (int)$simplexml->MAXLISTENERS;
+            $unique = (int)$simplexml->UNIQUELISTENERS;
+            $bitrate = (int)$simplexml->BITRATE;
+            $song = (string)$simplexml->SONGTITLE;
+
+            return "$listeners,$peak,$max,$unique,$bitrate,$song";
+        }
+
+        return false;
     }
 
     /**

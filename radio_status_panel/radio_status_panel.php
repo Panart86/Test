@@ -91,7 +91,7 @@ echo "<div class='radio-status-container'>";
 if (dbrows($streams_result)) {
     while ($stream = dbarray($streams_result)) {
         // Fetch stream data
-        $reader = new ShoutcastReader($stream['radio_server'], $stream['radio_port'], $stream['radio_password']);
+        $reader = new ShoutcastReader($stream['radio_server'], $stream['radio_port'], $stream['radio_mount'], $stream['radio_password']);
         $stream_data = $reader->getStreamData();
 
         echo "<div class='radio-stream' data-refresh='".$refresh_interval."' data-stream-id='".$stream['radio_id']."'>";
@@ -111,7 +111,13 @@ if (dbrows($streams_result)) {
 
         echo "<div class='panel-body'>";
 
-        if ($stream_data !== false && isset($stream_data['online']) && $stream_data['online']) {
+        if ($stream_data === false) {
+            // Fehler beim Abrufen der Daten
+            echo "<div class='alert alert-warning m-b-0'>";
+            echo "<i class='fa fa-exclamation-triangle'></i> ";
+            echo "<strong>Verbindungsfehler:</strong> ".$reader->getError();
+            echo "</div>";
+        } elseif ($stream_data !== false && isset($stream_data['online']) && $stream_data['online']) {
             echo "<div class='radio-info'>";
 
             // Current song

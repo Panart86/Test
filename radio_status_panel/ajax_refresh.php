@@ -27,7 +27,7 @@ $streams_result = dbquery("SELECT * FROM ".DB_RADIO_STATUS." WHERE radio_status=
 if (dbrows($streams_result)) {
     while ($stream = dbarray($streams_result)) {
         // Fetch stream data
-        $reader = new ShoutcastReader($stream['radio_server'], $stream['radio_port'], $stream['radio_password']);
+        $reader = new ShoutcastReader($stream['radio_server'], $stream['radio_port'], $stream['radio_mount'], $stream['radio_password']);
         $stream_data = $reader->getStreamData();
 
         $stream_info = [

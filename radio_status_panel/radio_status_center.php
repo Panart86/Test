@@ -326,7 +326,7 @@ if (dbrows($streams_result)) {
 
     while ($stream = dbarray($streams_result)) {
         // Fetch stream data
-        $reader = new ShoutcastReader($stream['radio_server'], $stream['radio_port'], $stream['radio_password']);
+        $reader = new ShoutcastReader($stream['radio_server'], $stream['radio_port'], $stream['radio_mount'], $stream['radio_password']);
         $stream_data = $reader->getStreamData();
 
         $is_online = ($stream_data !== false && isset($stream_data['online']) && $stream_data['online']);
