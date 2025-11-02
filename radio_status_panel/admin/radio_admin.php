@@ -17,123 +17,6 @@ require_once RADIO_STATUS_LOCALE;
 
 add_to_title($locale['global_200'].$locale['RSP_title']);
 
-// Custom CSS
-add_to_head("<style>
-.radio-admin-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 30px;
-    border-radius: 8px;
-    margin-bottom: 30px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-.radio-admin-header h2 {
-    margin: 0 0 10px 0;
-    font-size: 28px;
-    font-weight: bold;
-}
-.radio-admin-header p {
-    margin: 0;
-    opacity: 0.9;
-}
-.radio-stat-card {
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: all 0.3s ease;
-}
-.radio-stat-card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    transform: translateY(-2px);
-}
-.radio-stat-icon {
-    font-size: 36px;
-    margin-bottom: 10px;
-}
-.radio-stat-icon.streams { color: #3498db; }
-.radio-stat-icon.active { color: #27ae60; }
-.radio-stat-icon.inactive { color: #95a5a6; }
-.radio-stat-icon.settings { color: #e67e22; }
-.radio-stat-number {
-    font-size: 32px;
-    font-weight: bold;
-    margin: 10px 0;
-}
-.radio-stat-label {
-    color: #7f8c8d;
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-.stream-card {
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 15px;
-    border-left: 4px solid #3498db;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-    transition: all 0.3s ease;
-}
-.stream-card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    border-left-color: #2980b9;
-}
-.stream-card.inactive {
-    border-left-color: #95a5a6;
-    opacity: 0.7;
-}
-.stream-card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-.stream-card-title {
-    font-size: 18px;
-    font-weight: bold;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.stream-card-meta {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
-    margin-top: 15px;
-}
-.stream-meta-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #7f8c8d;
-    font-size: 14px;
-}
-.stream-meta-item i {
-    color: #3498db;
-}
-.action-buttons {
-    display: flex;
-    gap: 5px;
-}
-.form-section {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-.form-section-title {
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 15px;
-    color: #2c3e50;
-    border-bottom: 2px solid #3498db;
-    padding-bottom: 10px;
-}
-</style>");
-
 // Actions
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 $radio_id = isset($_GET['radio_id']) && isnum($_GET['radio_id']) ? intval($_GET['radio_id']) : 0;
@@ -146,14 +29,14 @@ if ($action == 'delete' && $radio_id) {
         redirect(FUSION_SELF.fusion_get_aidlink());
     } else {
         opentable($locale['RSP_delete_stream']);
-        echo "<div class='well text-center' style='padding:40px;'>";
-        echo "<i class='fa fa-trash fa-3x text-danger' style='margin-bottom:20px;'></i>";
-        echo "<h3>".$locale['RSP_delete_stream']."?</h3>";
-        echo "<p style='color:#7f8c8d;'>Diese Aktion kann nicht rückgängig gemacht werden.</p>";
+        echo "<div class='well text-center'>";
+        echo "<i class='fa fa-exclamation-triangle fa-3x text-danger m-b-10'></i>";
+        echo "<h4>".$locale['RSP_delete_stream']."?</h4>";
+        echo "<p class='text-muted'>Diese Aktion kann nicht rückgängig gemacht werden.</p>";
         echo openform('delete_form', 'post', FUSION_SELF.fusion_get_aidlink().'&amp;action=delete&amp;radio_id='.$radio_id);
-        echo "<div style='margin-top:20px;'>";
-        echo form_button('confirm', $locale['RSP_delete'], 'confirm', ['class' => 'btn-danger btn-lg m-r-10', 'icon' => 'fa fa-trash']);
-        echo "<a href='".FUSION_SELF.fusion_get_aidlink()."' class='btn btn-default btn-lg'><i class='fa fa-times'></i> ".$locale['RSP_cancel']."</a>";
+        echo "<div class='m-t-10'>";
+        echo form_button('confirm', $locale['RSP_delete'], 'confirm', ['class' => 'btn-danger m-r-10', 'icon' => 'fa fa-trash']);
+        echo "<a href='".FUSION_SELF.fusion_get_aidlink()."' class='btn btn-default'><i class='fa fa-times'></i> ".$locale['RSP_cancel']."</a>";
         echo "</div>";
         echo closeform();
         echo "</div>";
@@ -220,44 +103,47 @@ if ($action == 'edit' || $action == 'add') {
         }
     }
 
-    opentable($action == 'edit' ? '<i class="fa fa-edit"></i> '.$locale['RSP_edit_stream'] : '<i class="fa fa-plus"></i> '.$locale['RSP_add_stream']);
+    opentable($action == 'edit' ? $locale['RSP_edit_stream'] : $locale['RSP_add_stream']);
 
     echo openform('stream_form', 'post', FUSION_SELF.fusion_get_aidlink().'&amp;action='.$action.($radio_id ? '&amp;radio_id='.$radio_id : ''));
 
     // Basic Information
-    echo "<div class='form-section'>";
-    echo "<div class='form-section-title'><i class='fa fa-info-circle'></i> Basis-Informationen</div>";
+    echo "<div class='panel panel-default'>";
+    echo "<div class='panel-heading'><strong><i class='fa fa-info-circle'></i> Basis-Informationen</strong></div>";
+    echo "<div class='panel-body'>";
 
     echo "<div class='row'>";
-    echo "<div class='col-xs-12 col-sm-6'>";
+    echo "<div class='col-xs-12 col-sm-8'>";
     echo "<div class='form-group'>";
     echo "<label>".$locale['RSP_stream_name']." <span class='required'>*</span></label>";
     echo "<input type='text' name='radio_name' value='".htmlspecialchars($data['radio_name'])."' class='form-control' placeholder='Mein Radio Stream' required />";
     echo "</div>";
     echo "</div>";
 
-    echo "<div class='col-xs-12 col-sm-3'>";
+    echo "<div class='col-xs-12 col-sm-4'>";
     echo "<div class='form-group'>";
     echo "<label>".$locale['RSP_order']."</label>";
     echo "<input type='number' name='radio_order' value='".$data['radio_order']."' class='form-control' />";
     echo "</div>";
     echo "</div>";
+    echo "</div>";
 
-    echo "<div class='col-xs-12 col-sm-3'>";
     echo "<div class='form-group'>";
-    echo "<label>".$locale['RSP_status']."</label><br>";
-    echo "<label class='label-checkbox' style='display:inline-block;margin-top:7px;'>";
+    echo "<div class='checkbox'>";
+    echo "<label>";
     echo "<input type='checkbox' name='radio_status' value='1'".($data['radio_status'] ? ' checked' : '')." />";
-    echo " <i class='fa fa-check-square-o'></i> ".$locale['RSP_active'];
+    echo " ".$locale['RSP_active'];
     echo "</label>";
     echo "</div>";
     echo "</div>";
+
     echo "</div>";
     echo "</div>";
 
     // Server Configuration
-    echo "<div class='form-section'>";
-    echo "<div class='form-section-title'><i class='fa fa-server'></i> Server-Konfiguration</div>";
+    echo "<div class='panel panel-default'>";
+    echo "<div class='panel-heading'><strong><i class='fa fa-server'></i> Server-Konfiguration</strong></div>";
+    echo "<div class='panel-body'>";
 
     echo "<div class='row'>";
     echo "<div class='col-xs-12 col-sm-6'>";
@@ -297,15 +183,17 @@ if ($action == 'edit' || $action == 'add') {
     echo "<div class='col-xs-12 col-sm-6'>";
     echo "<div class='form-group'>";
     echo "<label>".$locale['RSP_password']." <small class='text-muted'>(Optional)</small></label>";
-    echo "<input type='password' name='radio_password' value='".htmlspecialchars($data['radio_password'])."' class='form-control' autocomplete='off' placeholder='Admin-Passwort für erweiterte Stats' />";
-    echo "</div>";
+    echo "<input type='password' name='radio_password' value='".htmlspecialchars($data['radio_password'])."' class='form-control' autocomplete='off' placeholder='Admin-Passwort' />";
     echo "</div>";
     echo "</div>";
     echo "</div>";
 
-    echo "<div class='m-t-20'>";
-    echo form_button('save_stream', $locale['RSP_save'], $locale['RSP_save'], ['class' => 'btn-primary btn-lg m-r-10', 'icon' => 'fa fa-check']);
-    echo "<a href='".FUSION_SELF.fusion_get_aidlink()."' class='btn btn-default btn-lg'><i class='fa fa-times'></i> ".$locale['RSP_cancel']."</a>";
+    echo "</div>";
+    echo "</div>";
+
+    echo "<div class='m-t-10'>";
+    echo form_button('save_stream', $locale['RSP_save'], $locale['RSP_save'], ['class' => 'btn-primary m-r-10', 'icon' => 'fa fa-check']);
+    echo "<a href='".FUSION_SELF.fusion_get_aidlink()."' class='btn btn-default'><i class='fa fa-times'></i> ".$locale['RSP_cancel']."</a>";
     echo "</div>";
 
     echo closeform();
@@ -345,25 +233,27 @@ if ($action == 'settings') {
         $settings[$data['settings_name']] = $data['settings_value'];
     }
 
-    opentable('<i class="fa fa-cog"></i> '.$locale['RSP_settings']);
+    opentable($locale['RSP_settings']);
 
     echo openform('settings_form', 'post', FUSION_SELF.fusion_get_aidlink().'&amp;action=settings');
 
-    echo "<div class='form-section'>";
-    echo "<div class='form-section-title'><i class='fa fa-refresh'></i> Aktualisierung</div>";
+    echo "<div class='panel panel-default'>";
+    echo "<div class='panel-heading'><strong><i class='fa fa-refresh'></i> Aktualisierung</strong></div>";
+    echo "<div class='panel-body'>";
     echo "<div class='form-group'>";
     echo "<label>".$locale['RSP_refresh_interval']."</label>";
-    echo "<div class='input-group' style='width:200px;'>";
+    echo "<div class='input-group' style='max-width:250px;'>";
     echo "<input type='number' name='refresh_interval' value='".(isset($settings['refresh_interval']) ? $settings['refresh_interval'] : 10)."' class='form-control' min='5' max='300' />";
     echo "<span class='input-group-addon'>Sekunden</span>";
     echo "</div>";
-    echo "<small class='text-muted'>Wie oft sollen die Stream-Daten aktualisiert werden? (5-300 Sekunden)</small>";
+    echo "<span class='help-block'>Wie oft sollen die Stream-Daten aktualisiert werden? (5-300 Sekunden)</span>";
+    echo "</div>";
     echo "</div>";
     echo "</div>";
 
-    echo "<div class='form-section'>";
-    echo "<div class='form-section-title'><i class='fa fa-eye'></i> Anzeigeoptionen</div>";
-    echo "<div class='row'>";
+    echo "<div class='panel panel-default'>";
+    echo "<div class='panel-heading'><strong><i class='fa fa-eye'></i> Anzeigeoptionen</strong></div>";
+    echo "<div class='panel-body'>";
 
     $options = [
         ['name' => 'show_listeners', 'icon' => 'fa-users', 'label' => $locale['RSP_show_listeners']],
@@ -374,22 +264,20 @@ if ($action == 'settings') {
     ];
 
     foreach ($options as $opt) {
-        echo "<div class='col-xs-12 col-sm-6 col-md-4'>";
         echo "<div class='checkbox'>";
-        echo "<label style='font-size:15px;'>";
+        echo "<label>";
         echo "<input type='checkbox' name='".$opt['name']."' value='1'".(isset($settings[$opt['name']]) && $settings[$opt['name']] ? ' checked' : '')." />";
-        echo " <i class='fa ".$opt['icon']."' style='margin-right:5px;color:#3498db;'></i> ".$opt['label'];
+        echo " <i class='fa ".$opt['icon']."'></i> ".$opt['label'];
         echo "</label>";
-        echo "</div>";
         echo "</div>";
     }
 
     echo "</div>";
     echo "</div>";
 
-    echo "<div class='m-t-20'>";
-    echo form_button('save_settings', $locale['RSP_save'], $locale['RSP_save'], ['class' => 'btn-primary btn-lg m-r-10', 'icon' => 'fa fa-check']);
-    echo "<a href='".FUSION_SELF.fusion_get_aidlink()."' class='btn btn-default btn-lg'><i class='fa fa-times'></i> ".$locale['RSP_cancel']."</a>";
+    echo "<div class='m-t-10'>";
+    echo form_button('save_settings', $locale['RSP_save'], $locale['RSP_save'], ['class' => 'btn-primary m-r-10', 'icon' => 'fa fa-check']);
+    echo "<a href='".FUSION_SELF.fusion_get_aidlink()."' class='btn btn-default'><i class='fa fa-times'></i> ".$locale['RSP_cancel']."</a>";
     echo "</div>";
 
     echo closeform();
@@ -399,10 +287,16 @@ if ($action == 'settings') {
 }
 
 // Main Dashboard
-// Header
-echo "<div class='radio-admin-header'>";
-echo "<h2><i class='fa fa-broadcast-tower'></i> ".$locale['RSP_admin_title']."</h2>";
-echo "<p>Verwalten Sie Ihre Radio-Streams und Einstellungen</p>";
+opentable($locale['RSP_admin_title']);
+
+// Action Buttons
+echo "<div class='m-b-20'>";
+echo "<a class='btn btn-success m-r-10' href='".FUSION_SELF.fusion_get_aidlink()."&amp;action=add'>";
+echo "<i class='fa fa-plus'></i> ".$locale['RSP_add_stream'];
+echo "</a>";
+echo "<a class='btn btn-primary' href='".FUSION_SELF.fusion_get_aidlink()."&amp;action=settings'>";
+echo "<i class='fa fa-cog'></i> ".$locale['RSP_settings'];
+echo "</a>";
 echo "</div>";
 
 // Statistics
@@ -410,117 +304,106 @@ $total_streams = dbcount("(radio_id)", DB_RADIO_STATUS);
 $active_streams = dbcount("(radio_id)", DB_RADIO_STATUS, "radio_status='1'");
 $inactive_streams = $total_streams - $active_streams;
 
-echo "<div class='row m-b-20'>";
-
-echo "<div class='col-xs-12 col-sm-6 col-md-3'>";
-echo "<div class='radio-stat-card text-center'>";
-echo "<div class='radio-stat-icon streams'><i class='fa fa-radio'></i></div>";
-echo "<div class='radio-stat-number'>".$total_streams."</div>";
-echo "<div class='radio-stat-label'>Gesamt Streams</div>";
-echo "</div>";
-echo "</div>";
-
-echo "<div class='col-xs-12 col-sm-6 col-md-3'>";
-echo "<div class='radio-stat-card text-center'>";
-echo "<div class='radio-stat-icon active'><i class='fa fa-check-circle'></i></div>";
-echo "<div class='radio-stat-number'>".$active_streams."</div>";
-echo "<div class='radio-stat-label'>Aktive Streams</div>";
-echo "</div>";
-echo "</div>";
-
-echo "<div class='col-xs-12 col-sm-6 col-md-3'>";
-echo "<div class='radio-stat-card text-center'>";
-echo "<div class='radio-stat-icon inactive'><i class='fa fa-pause-circle'></i></div>";
-echo "<div class='radio-stat-number'>".$inactive_streams."</div>";
-echo "<div class='radio-stat-label'>Inaktive Streams</div>";
-echo "</div>";
-echo "</div>";
-
 $settings = [];
-$result = dbquery("SELECT * FROM ".DB_RADIO_SETTINGS);
-while ($data = dbarray($result)) {
+$result_settings = dbquery("SELECT * FROM ".DB_RADIO_SETTINGS);
+while ($data = dbarray($result_settings)) {
     $settings[$data['settings_name']] = $data['settings_value'];
 }
 $refresh = isset($settings['refresh_interval']) ? $settings['refresh_interval'] : 10;
 
-echo "<div class='col-xs-12 col-sm-6 col-md-3'>";
-echo "<div class='radio-stat-card text-center'>";
-echo "<div class='radio-stat-icon settings'><i class='fa fa-refresh'></i></div>";
-echo "<div class='radio-stat-number'>".$refresh."s</div>";
-echo "<div class='radio-stat-label'>Refresh Intervall</div>";
-echo "</div>";
-echo "</div>";
+echo "<div class='row m-b-20'>";
+echo "<div class='col-xs-6 col-sm-3'>";
+echo "<div class='panel panel-default text-center'>";
+echo "<div class='panel-body'>";
+echo "<i class='fa fa-radio fa-3x text-info m-b-10'></i>";
+echo "<h3 class='m-t-5 m-b-5'>".$total_streams."</h3>";
+echo "<small class='text-uppercase'><strong>Gesamt Streams</strong></small>";
+echo "</div></div></div>";
 
-echo "</div>";
+echo "<div class='col-xs-6 col-sm-3'>";
+echo "<div class='panel panel-default text-center'>";
+echo "<div class='panel-body'>";
+echo "<i class='fa fa-check-circle fa-3x text-success m-b-10'></i>";
+echo "<h3 class='m-t-5 m-b-5'>".$active_streams."</h3>";
+echo "<small class='text-uppercase'><strong>Aktive Streams</strong></small>";
+echo "</div></div></div>";
 
-// Action Buttons
-opentable($locale['RSP_manage']);
+echo "<div class='col-xs-6 col-sm-3'>";
+echo "<div class='panel panel-default text-center'>";
+echo "<div class='panel-body'>";
+echo "<i class='fa fa-pause-circle fa-3x text-muted m-b-10'></i>";
+echo "<h3 class='m-t-5 m-b-5'>".$inactive_streams."</h3>";
+echo "<small class='text-uppercase'><strong>Inaktive Streams</strong></small>";
+echo "</div></div></div>";
 
-echo "<div class='m-b-20'>";
-echo "<a class='btn btn-success btn-lg m-r-10' href='".FUSION_SELF.fusion_get_aidlink()."&amp;action=add'>";
-echo "<i class='fa fa-plus'></i> ".$locale['RSP_add_stream'];
-echo "</a>";
-echo "<a class='btn btn-primary btn-lg' href='".FUSION_SELF.fusion_get_aidlink()."&amp;action=settings'>";
-echo "<i class='fa fa-cog'></i> ".$locale['RSP_settings'];
-echo "</a>";
+echo "<div class='col-xs-6 col-sm-3'>";
+echo "<div class='panel panel-default text-center'>";
+echo "<div class='panel-body'>";
+echo "<i class='fa fa-refresh fa-3x text-warning m-b-10'></i>";
+echo "<h3 class='m-t-5 m-b-5'>".$refresh."s</h3>";
+echo "<small class='text-uppercase'><strong>Refresh Intervall</strong></small>";
+echo "</div></div></div>";
 echo "</div>";
 
 // List streams
 $result = dbquery("SELECT * FROM ".DB_RADIO_STATUS." ORDER BY radio_order ASC, radio_name ASC");
 
 if (dbrows($result)) {
+    echo "<div class='table-responsive'>";
+    echo "<table class='table table-striped table-hover'>";
+    echo "<thead>";
+    echo "<tr>";
+    echo "<th style='width:30px;'><strong>ID</strong></th>";
+    echo "<th><strong>".$locale['RSP_stream_name']."</strong></th>";
+    echo "<th><strong>".$locale['RSP_server']."</strong></th>";
+    echo "<th><strong>".$locale['RSP_type']."</strong></th>";
+    echo "<th class='text-center'><strong>".$locale['RSP_status']."</strong></th>";
+    echo "<th class='text-right'><strong>".$locale['RSP_actions']."</strong></th>";
+    echo "</tr>";
+    echo "</thead>";
+    echo "<tbody>";
+
     while ($data = dbarray($result)) {
         $type_label = $data['radio_type'];
         if ($data['radio_type'] == 'shoutcast1') $type_label = 'Shoutcast v1';
         if ($data['radio_type'] == 'shoutcast2') $type_label = 'Shoutcast v2';
         if ($data['radio_type'] == 'icecast') $type_label = 'Icecast';
 
-        echo "<div class='stream-card".($data['radio_status'] ? '' : ' inactive')."'>";
-        echo "<div class='stream-card-header'>";
-        echo "<div class='stream-card-title'>";
-        echo "<i class='fa fa-radio'></i>";
-        echo htmlspecialchars($data['radio_name']);
+        echo "<tr>";
+        echo "<td><strong>#".$data['radio_id']."</strong></td>";
+        echo "<td>";
+        echo "<strong>".htmlspecialchars($data['radio_name'])."</strong><br>";
+        echo "<small class='text-muted'><i class='fa fa-folder-open'></i> Mount: ".htmlspecialchars($data['radio_mount'])." | <i class='fa fa-sort'></i> Reihenfolge: ".$data['radio_order']."</small>";
+        echo "</td>";
+        echo "<td><code>".htmlspecialchars($data['radio_server']).":".htmlspecialchars($data['radio_port'])."</code></td>";
+        echo "<td><span class='label label-info'>".$type_label."</span></td>";
+        echo "<td class='text-center'>";
         if ($data['radio_status']) {
-            echo " <span class='label label-success'><i class='fa fa-check'></i> Aktiv</span>";
+            echo "<span class='label label-success'><i class='fa fa-check'></i> Aktiv</span>";
         } else {
-            echo " <span class='label label-default'><i class='fa fa-pause'></i> Inaktiv</span>";
+            echo "<span class='label label-default'><i class='fa fa-pause'></i> Inaktiv</span>";
         }
-        echo "</div>";
-        echo "<div class='action-buttons'>";
+        echo "</td>";
+        echo "<td class='text-right'>";
+        echo "<div class='btn-group'>";
         echo "<a class='btn btn-sm btn-default' href='".FUSION_SELF.fusion_get_aidlink()."&amp;action=edit&amp;radio_id=".$data['radio_id']."' title='Bearbeiten'>";
-        echo "<i class='fa fa-pencil'></i>";
+        echo "<i class='fa fa-pencil'></i> Bearbeiten";
         echo "</a>";
         echo "<a class='btn btn-sm btn-danger' href='".FUSION_SELF.fusion_get_aidlink()."&amp;action=delete&amp;radio_id=".$data['radio_id']."' title='Löschen'>";
         echo "<i class='fa fa-trash'></i>";
         echo "</a>";
         echo "</div>";
-        echo "</div>";
-
-        echo "<div class='stream-card-meta'>";
-        echo "<div class='stream-meta-item'>";
-        echo "<i class='fa fa-server'></i>";
-        echo "<span><strong>Server:</strong> ".htmlspecialchars($data['radio_server']).":".htmlspecialchars($data['radio_port'])."</span>";
-        echo "</div>";
-        echo "<div class='stream-meta-item'>";
-        echo "<i class='fa fa-folder-open'></i>";
-        echo "<span><strong>Mount:</strong> ".htmlspecialchars($data['radio_mount'])."</span>";
-        echo "</div>";
-        echo "<div class='stream-meta-item'>";
-        echo "<i class='fa fa-code'></i>";
-        echo "<span><strong>Typ:</strong> ".$type_label."</span>";
-        echo "</div>";
-        echo "<div class='stream-meta-item'>";
-        echo "<i class='fa fa-sort-numeric-asc'></i>";
-        echo "<span><strong>Reihenfolge:</strong> ".$data['radio_order']."</span>";
-        echo "</div>";
-        echo "</div>";
-
-        echo "</div>";
+        echo "</td>";
+        echo "</tr>";
     }
+
+    echo "</tbody>";
+    echo "</table>";
+    echo "</div>";
 } else {
-    echo "<div class='well text-center' style='padding:60px;'>";
-    echo "<i class='fa fa-broadcast-tower fa-4x text-muted' style='margin-bottom:20px;'></i>";
-    echo "<h3>".$locale['RSP_no_streams']."</h3>";
+    echo "<div class='well text-center'>";
+    echo "<i class='fa fa-info-circle fa-3x text-info m-b-10'></i>";
+    echo "<h4>".$locale['RSP_no_streams']."</h4>";
     echo "<p class='text-muted'>Klicken Sie auf 'Stream hinzufügen' um Ihren ersten Radio-Stream zu konfigurieren.</p>";
     echo "</div>";
 }
