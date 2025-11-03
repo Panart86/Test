@@ -57,6 +57,21 @@ add_to_head("<style>
     .label-danger {
         background-color: #d9534f;
     }
+    .radio-player-buttons .btn {
+        margin: 2px;
+        padding: 6px 10px;
+        font-size: 11px;
+    }
+    @media (max-width: 400px) {
+        .radio-player-buttons .btn-group {
+            display: block;
+        }
+        .radio-player-buttons .btn {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+        }
+    }
 </style>");
 
 // Add auto-refresh JavaScript
@@ -150,6 +165,38 @@ if (dbrows($streams_result)) {
                 echo "</div>";
             }
 
+            echo "</div>";
+
+            // Player Buttons
+            $stream_url = "http://{$stream['radio_server']}:{$stream['radio_port']}{$stream['radio_mount']}";
+
+            echo "<div class='m-t-15 radio-player-buttons' style='border-top:1px solid #ddd;padding-top:15px;'>";
+            echo "<div class='text-center'>";
+            echo "<p class='text-muted' style='margin-bottom:10px;font-size:11px;'><strong>Player öffnen:</strong></p>";
+            echo "<div class='btn-group btn-group-sm' role='group'>";
+
+            // VLC Player Button
+            echo "<a href='vlc://{$stream['radio_server']}:{$stream['radio_port']}{$stream['radio_mount']}' class='btn btn-default' title='In VLC Player öffnen'>";
+            echo "<i class='fa fa-play-circle'></i> VLC";
+            echo "</a>";
+
+            // iTunes Button
+            echo "<a href='{$stream_url}' class='btn btn-default' title='In iTunes öffnen' target='_blank'>";
+            echo "<i class='fa fa-music'></i> iTunes";
+            echo "</a>";
+
+            // Windows Media Player Button
+            echo "<a href='{$stream_url}' class='btn btn-default' title='In Media Player öffnen' target='_blank'>";
+            echo "<i class='fa fa-windows'></i> Media Player";
+            echo "</a>";
+
+            // RealPlayer Button
+            echo "<a href='{$stream_url}' class='btn btn-default' title='In RealPlayer öffnen' target='_blank'>";
+            echo "<i class='fa fa-play'></i> RealPlayer";
+            echo "</a>";
+
+            echo "</div>";
+            echo "</div>";
             echo "</div>";
         } else {
             echo "<div class='alert alert-warning' style='margin: 0;'>";

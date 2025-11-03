@@ -416,6 +416,36 @@ if (dbrows($streams_result)) {
 
             echo "</div>"; // stats-grid
 
+            // Player Buttons
+            $stream_url = "http://{$stream['radio_server']}:{$stream['radio_port']}{$stream['radio_mount']}";
+
+            echo "<div style='margin-top:30px;padding-top:20px;border-top:2px solid rgba(255,255,255,0.1);text-align:center;'>";
+            echo "<h4 style='color:#fff;margin-bottom:20px;font-size:16px;'><i class='fa fa-headphones'></i> Stream in Player öffnen</h4>";
+            echo "<div class='btn-group' role='group'>";
+
+            // VLC Player Button
+            echo "<a href='vlc://{$stream['radio_server']}:{$stream['radio_port']}{$stream['radio_mount']}' class='btn btn-lg btn-primary' title='In VLC Player öffnen'>";
+            echo "<i class='fa fa-play-circle fa-lg'></i><br><small>VLC Player</small>";
+            echo "</a>";
+
+            // iTunes Button
+            echo "<a href='{$stream_url}' class='btn btn-lg btn-info' title='In iTunes öffnen' target='_blank'>";
+            echo "<i class='fa fa-music fa-lg'></i><br><small>iTunes</small>";
+            echo "</a>";
+
+            // Windows Media Player Button
+            echo "<a href='{$stream_url}' class='btn btn-lg btn-success' title='In Media Player öffnen' target='_blank'>";
+            echo "<i class='fa fa-windows fa-lg'></i><br><small>Media Player</small>";
+            echo "</a>";
+
+            // RealPlayer Button
+            echo "<a href='{$stream_url}' class='btn btn-lg btn-warning' title='In RealPlayer öffnen' target='_blank'>";
+            echo "<i class='fa fa-play fa-lg'></i><br><small>RealPlayer</small>";
+            echo "</a>";
+
+            echo "</div>";
+            echo "</div>";
+
         } else {
             // Offline message
             echo "<div class='radio-offline-message'>";
