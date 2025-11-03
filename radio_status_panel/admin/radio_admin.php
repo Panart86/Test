@@ -46,7 +46,6 @@ if ($action == 'delete' && $radio_id) {
         echo "</div>";
         echo "</div>";
         closetable();
-        require_once THEMES."templates/admin_footer.php";
         exit;
     }
 }
@@ -207,7 +206,6 @@ if ($action == 'edit' || $action == 'add') {
 
     echo closeform();
     closetable();
-    require_once THEMES."templates/admin_footer.php";
     exit;
 }
 
@@ -295,7 +293,6 @@ if ($action == 'settings') {
 
     echo closeform();
     closetable();
-    require_once THEMES."templates/admin_footer.php";
     exit;
 }
 
